@@ -1,146 +1,119 @@
-import { useEffect, useState } from 'react'
-import ProdutoCard from '../components/ProdutoCard'
+import { useEffect, useState } from "react";
+import styled from "styled-components";
+import ProdutoCard from "../components/ProdutoCard";
 
-import notebookImg from '../assets/produtos/notebook.jpg'
-import mouseImg from '../assets/produtos/mouse.jpg'
-import tecladoImg from '../assets/produtos/teclado.jpg'
+import notebookImg from "../assets/produtos/notebook.jpg";
+import mouseImg from "../assets/produtos/mouse.jpg";
+import tecladoImg from "../assets/produtos/teclado.jpg";
+
+const CatalogoContainer = styled.section`
+  max-width: 1120px;
+  margin: 0 auto;
+`;
+
+const TituloSecao = styled.div`
+  text-align: center;
+  margin-bottom: 30px;
+
+  p {
+    color: var(--rosa-forte);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  h2 {
+    font-size: 34px;
+    color: var(--texto);
+  }
+
+  @media (max-width: 700px) {
+    h2 {
+      font-size: 28px;
+    }
+  }
+`;
+
+const MensagemCarregando = styled.p`
+  text-align: center;
+  font-size: 21px;
+  color: var(--texto);
+  padding: 34px;
+  background-color: rgba(255, 250, 246, 0.86);
+  border: 2px solid var(--borda);
+  border-radius: 28px;
+  box-shadow: var(--sombra);
+`;
+
+const ListaProdutos = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 28px;
+`;
 
 function Catalogo() {
-  const [produtos, setProdutos] = useState([])
-  const [carregando, setCarregando] = useState(true)
-
-  const [formulario, setFormulario] = useState({
-    nome: '',
-    preco: '',
-    imagem: '',
-    descricao: ''
-  })
+  const [produtos, setProdutos] = useState([]);
+  const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
-    const produtosMockados = [
+    const produtosIniciais = [
       {
         id: 1,
-        nome: 'Notebook Gamer',
-        preco: '4500,00',
+        nome: "Notebook Gamer",
+        preco: 4299.9,
         imagem: notebookImg,
-        descricao: 'Notebook potente para jogos, estudos e programação.'
+        descricao: "Notebook potente para estudos, trabalho e desenvolvimento.",
+        adicionado: false,
       },
       {
         id: 2,
-        nome: 'Mouse Sem Fio',
-        preco: '89,90',
+        nome: "Mouse Sem Fio",
+        preco: 89.9,
         imagem: mouseImg,
-        descricao: 'Mouse ergonômico com conexão sem fio.'
+        descricao: "Mouse ergonômico com conexão sem fio e alta precisão.",
+        adicionado: false,
       },
       {
         id: 3,
-        nome: 'Teclado Mecânico',
-        preco: '250,00',
+        nome: "Teclado Mecânico",
+        preco: 249.9,
         imagem: tecladoImg,
-        descricao: 'Teclado mecânico com iluminação RGB.'
-      }
-    ]
+        descricao: "Teclado mecânico com iluminação e ótima resposta.",
+        adicionado: false,
+      },
+    ];
 
-    const tempo = setTimeout(() => {
-      setProdutos(produtosMockados)
-      setCarregando(false)
-    }, 1500)
+    const timer = setTimeout(() => {
+      setProdutos(produtosIniciais);
+      setCarregando(false);
+    }, 800);
 
-    return () => clearTimeout(tempo)
-  }, [])
+    return () => clearTimeout(timer);
+  }, []);
 
-  function alterarFormulario(evento) {
-    const { name, value } = evento.target
-
-    setFormulario({
-      ...formulario,
-      [name]: value
-    })
-  }
-
-  function cadastrarProduto(evento) {
-    evento.preventDefault()
-
-    if (
-      formulario.nome.trim() === '' ||
-      formulario.preco.trim() === '' ||
-      formulario.descricao.trim() === ''
-    ) {
-      alert('Preencha nome, preço e descrição.')
-      return
-    }
-
-    const novoProduto = {
-      id: Date.now(),
-      nome: formulario.nome,
-      preco: formulario.preco,
-      imagem:
-        formulario.imagem.trim() !== ''
-          ? formulario.imagem
-          : 'https://placehold.co/300x200/fbf5d1/637460?text=Produto',
-      descricao: formulario.descricao
-    }
-
-    setProdutos([...produtos, novoProduto])
-
-    setFormulario({
-      nome: '',
-      preco: '',
-      imagem: '',
-      descricao: ''
-    })
+  function alterarStatusCarrinho(idProduto) {
+    setProdutos((produtosAtuais) =>
+      produtosAtuais.map((produto) =>
+        produto.id === idProduto
+          ? { ...produto, adicionado: !produto.adicionado }
+          : produto
+      )
+    );
   }
 
   return (
-    <section className="catalogo">
-      <div className="titulo-secao">
+    <CatalogoContainer>
+      <TituloSecao>
         <p>Produtos disponíveis</p>
-        <h2>Vitrine principal</h2>
-      </div>
-
-      <form className="formulario" onSubmit={cadastrarProduto}>
-        <h2>Cadastrar novo produto</h2>
-
-        <div className="grupo-campos">
-          <input
-            type="text"
-            name="nome"
-            placeholder="Nome do produto"
-            value={formulario.nome}
-            onChange={alterarFormulario}
-          />
-
-          <input
-            type="text"
-            name="preco"
-            placeholder="Preço"
-            value={formulario.preco}
-            onChange={alterarFormulario}
-          />
-        </div>
-
-        <input
-          type="text"
-          name="imagem"
-          placeholder="URL da imagem"
-          value={formulario.imagem}
-          onChange={alterarFormulario}
-        />
-
-        <textarea
-          name="descricao"
-          placeholder="Descrição do produto"
-          value={formulario.descricao}
-          onChange={alterarFormulario}
-        />
-
-        <button type="submit">Adicionar produto</button>
-      </form>
+        <h2>Escolha seu produto</h2>
+      </TituloSecao>
 
       {carregando ? (
-        <p className="carregando">Carregando produtos...</p>
+        <MensagemCarregando>Carregando produtos...</MensagemCarregando>
       ) : (
-        <div className="lista-produtos">
+        <ListaProdutos>
           {produtos.map((produto) => (
             <ProdutoCard
               key={produto.id}
@@ -148,12 +121,14 @@ function Catalogo() {
               preco={produto.preco}
               imagem={produto.imagem}
               descricao={produto.descricao}
+              adicionado={produto.adicionado}
+              aoAlterarStatus={() => alterarStatusCarrinho(produto.id)}
             />
           ))}
-        </div>
+        </ListaProdutos>
       )}
-    </section>
-  )
+    </CatalogoContainer>
+  );
 }
 
-export default Catalogo
+export default Catalogo;
